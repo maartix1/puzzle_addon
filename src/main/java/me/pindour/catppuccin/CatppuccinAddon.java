@@ -2,6 +2,8 @@ package me.pindour.catppuccin;
 
 import me.pindour.catppuccin.api.render.shape.RoundedRect;
 import me.pindour.catppuccin.gui.themes.catppuccin.CatppuccinGuiTheme;
+//? if >=26.3
+import me.pindour.catppuccin.gui.themes.puzzle.PuzzleTheme;
 import com.mojang.logging.LogUtils;
 import me.pindour.catppuccin.renderer.CatppuccinRenderer;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
@@ -19,6 +21,8 @@ public class CatppuccinAddon extends MeteorAddon {
         LOG.info("Initializing Catppuccin Addon");
 
         GuiThemes.add(new CatppuccinGuiTheme());
+        //? if >=26.3
+        GuiThemes.add(new PuzzleTheme());
 
         RoundedRect.get().registerRenderer(CatppuccinRenderer.get());
     }
