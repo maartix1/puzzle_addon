@@ -152,7 +152,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
     }
 
     private double glassOpacity() {
-        return 0.28 * catppuccinTheme.backgroundOpacity();
+        return 0.15 * catppuccinTheme.backgroundOpacity();
     }
 
     private int glassAlpha(int alpha) {
@@ -274,8 +274,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         private void buildSidebar() {
             sidebar.clear();
 
-            sidebar.add(theme.horizontalSeparator("PUZZLE THEME")).expandX();
-            sidebar.add(theme.label("CTRL + F")).padHorizontal(10);
+            sidebar.add(theme.horizontalSeparator("METEOR CLIENT")).expandX();
 
             sidebar.add(theme.horizontalSeparator("FEATURES")).expandX();
 
@@ -412,8 +411,6 @@ public class CatppuccinModernModulesScreen extends TabScreen {
                     Module second = visible.get(i + 1);
                     WWidget secondWidget = theme.module(second, second.title);
                     row.add(new WModuleCard(second, secondWidget)).expandX();
-                } else {
-                    row.add(new WModuleGridSpacer()).expandX();
                 }
 
                 moduleView.add(row).expandX();
@@ -877,6 +874,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             @Override
             protected void onCalculateSize() {
                 super.onCalculateSize();
+                width = 0;
                 height = Math.max(height, theme.scale(54));
             }
 
@@ -926,14 +924,6 @@ public class CatppuccinModernModulesScreen extends TabScreen {
                 }
 
                 return false;
-            }
-        }
-
-        private class WModuleGridSpacer extends WWidget {
-            @Override
-            protected void onCalculateSize() {
-                width = theme.scale(240);
-                height = theme.scale(54);
             }
         }
 

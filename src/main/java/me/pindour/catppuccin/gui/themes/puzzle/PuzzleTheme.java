@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screens.Screen;
  */
 public class PuzzleTheme extends CatppuccinGuiTheme {
     public PuzzleTheme() {
-        super("Puzzle theme");
+        super("Meteor Client");
     }
 
     @Override

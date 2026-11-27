@@ -61,7 +61,7 @@
 2. 🡒 Move the file into your `.minecraft/mods` folder.
 3. 🡒 Launch Minecraft.
 4. 🡒 Open ClickGUI (`Right Shift`), go to the **"GUI"** tab.
-5. 🡒 Select **"Catppuccin"** from the **"Theme"** dropdown. On Minecraft 26.3+, select **"Puzzle theme"** to use the new modules layout.
+5. 🡒 Select **"Catppuccin"** from the **"Theme"** dropdown. On Minecraft 26.3+, select **"Meteor Client"** to use the modern modules layout.
 6. 🡒 **Recommended:** In the **"Config"** tab, set your custom font to **Arial** (or any font that supports bold/italic styles) for the full experience.
 
 ## ✨ Features
@@ -89,7 +89,7 @@
 - 🔎 **Epic Search™**  
   *(Leveraging advanced query-parsing technology to help you find 'AutoCrystal' 0.4ms faster)*
 
-- 🧭 **Puzzle theme** *(Separate theme for Minecraft 26.3+; category sidebar, module/settings search, module cards and an animated settings drawer. The original Catppuccin theme remains unchanged.)*
+- 🧭 **Meteor Client theme** *(Separate theme for Minecraft 26.3+; category sidebar, module/settings search, module cards and an animated settings drawer. The original Catppuccin theme remains unchanged.)*
 
 ## 🛠️ For Developers
 
