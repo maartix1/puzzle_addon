@@ -61,7 +61,7 @@
 2. 🡒 Move the file into your `.minecraft/mods` folder.
 3. 🡒 Launch Minecraft.
 4. 🡒 Open ClickGUI (`Right Shift`), go to the **"GUI"** tab.
-5. 🡒 Select **"Catppuccin"** from the **"Theme"** dropdown.
+5. 🡒 Select **"Catppuccin"** from the **"Theme"** dropdown. On Minecraft 26.3+, select **"Catppuccin Modern"** to use the new layout.
 6. 🡒 **Recommended:** In the **"Config"** tab, set your custom font to **Arial** (or any font that supports bold/italic styles) for the full experience.
 
 ## ✨ Features
@@ -89,7 +89,7 @@
 - 🔎 **Epic Search™**  
   *(Leveraging advanced query-parsing technology to help you find 'AutoCrystal' 0.4ms faster)*
 
-- 🧭 **Modern Modules Screen** *(Minecraft 26.3+; category sidebar, module/settings search, module cards and an animated settings drawer. Toggle it in the Catppuccin theme settings.)*
+- 🧭 **Catppuccin Modern Theme** *(Separate theme available on Minecraft 26.3+; includes the modern category sidebar, module/settings search, module cards and animated settings drawer. The original Catppuccin theme and its modules screen remain unchanged.)*
 
 ## 🛠️ For Developers
 
