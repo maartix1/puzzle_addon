@@ -127,7 +127,6 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
         selectedModule = module;
         if (layout != null) {
-            layout.restartDrawerAnimation();
             layout.rebuildDetails();
         }
     }
@@ -145,7 +144,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
     }
 
     private double glassOpacity() {
-        return 0.28 * catppuccinTheme.backgroundOpacity();
+        return Math.max(0.9, catppuccinTheme.backgroundOpacity());
     }
 
     private int glassAlpha(int alpha) {
@@ -199,6 +198,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
     private class WModernLayout extends WContainer {
         private final List<Category> categories = new ArrayList<>();
 
+        private WVerticalList rightPanel;
         private WHorizontalList searchBar;
         private WVerticalList sidebar;
         private WVerticalList center;
@@ -208,10 +208,9 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         private WVerticalList detailsContent;
         private WTextBox search;
 
-        private Cell<?> searchBarCell;
+        private Cell<?> rightPanelCell;
         private Cell<?> sidebarCell;
         private Cell<?> centerCell;
-        private Cell<?> detailsCell;
         private double drawerProgress;
 
         @Override
@@ -223,9 +222,9 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             selectedCategory = categories.isEmpty() ? favoritesCategory : categories.getFirst();
             selectedModule = getCategoryModules(selectedCategory).stream().findFirst().orElse(null);
 
-            searchBar = theme.horizontalList();
-            searchBar.spacing = 10;
-            searchBarCell = add(searchBar).expandX().expandWidgetY();
+            rightPanel = theme.verticalList();
+            rightPanel.spacing = 8;
+            rightPanelCell = add(rightPanel).expandX().expandWidgetY();
 
             sidebar = theme.verticalList();
             sidebar.spacing = 5;
@@ -235,11 +234,13 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             center.spacing = 8;
             centerCell = add(center).expandX().expandWidgetY();
 
+            buildSearchBar();
+
+            rightPanel.add(theme.horizontalSeparator("MODULE SETTINGS")).expandX();
             details = theme.verticalList();
             details.spacing = 6;
-            detailsCell = add(details).expandX().expandWidgetY();
+            rightPanel.add(details).expandX().expandWidgetY();
 
-            buildSearchBar();
             buildSidebar();
             buildCenter();
             rebuildModules();
@@ -247,23 +248,24 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         }
 
         private void buildSearchBar() {
-            searchBar.clear();
-            searchBar.add(theme.label("CATPPUCCIN", true)).centerY().padLeft(12);
+            searchBar = theme.horizontalList();
+            searchBar.spacing = 6;
 
             search = theme.textBox("", "Search modules, settings or aliases...");
-            search.minWidth = 220;
+            search.minWidth = 125;
             search.action = this::rebuildModules;
             searchTextBox = search;
-            searchBar.add(search).expandX().padHorizontal(8);
-
-            searchBar.add(theme.label("CTRL + F")).centerY();
+            searchBar.add(search).expandX();
 
             WPressable clearSearch = theme.button("×");
             clearSearch.action = () -> {
                 search.set("");
                 search.setFocused(true);
             };
-            searchBar.add(clearSearch).padRight(10);
+            searchBar.add(clearSearch);
+
+            rightPanel.add(theme.horizontalSeparator("SEARCH")).expandX();
+            rightPanel.add(searchBar).expandX().padHorizontal(10);
         }
 
         private void buildSidebar() {
@@ -479,7 +481,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
                 if (backgroundAlpha > 0) {
                     drawRoundedRect(renderer, x, y, width, height, smallCornerRadius(),
-                        new SettingColor(31, 27, 42, glassAlpha(38 + (int) (hoverEase * 18) + (selected ? 10 : 0))));
+                        new SettingColor(31, 27, 42, glassAlpha(135 + (int) (hoverEase * 30) + (selected ? 15 : 0))));
                 }
 
                 SettingColor typeColor = match.type == SearchMatchType.MODULE
@@ -527,8 +529,6 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             details.clear();
             detailsView = null;
             detailsContent = null;
-            details.add(theme.label("MODULE SETTINGS", true)).padTop(10).padLeft(10);
-
             if (selectedModule == null) {
                 details.add(theme.label("Select a module to view its settings.", 220)).pad(10);
                 return;
@@ -610,12 +610,6 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             double bodyY = bodyTop();
             double bodyHeight = bodyHeight();
 
-            searchBarCell.x = pad;
-            searchBarCell.y = pad;
-            searchBarCell.width = width - pad * 2;
-            searchBarCell.height = theme.scale(40);
-            searchBarCell.alignWidget();
-
             sidebarCell.x = pad;
             sidebarCell.y = bodyY;
             sidebarCell.width = sidebarWidth();
@@ -628,21 +622,21 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             centerCell.height = bodyHeight;
             centerCell.alignWidget();
 
-            detailsCell.x = detailsBaseX() + drawerOffset();
-            detailsCell.y = bodyY;
-            detailsCell.width = detailsWidth();
-            detailsCell.height = bodyHeight;
-            detailsCell.alignWidget();
+            rightPanelCell.x = detailsBaseX() + drawerOffset();
+            rightPanelCell.y = bodyY;
+            rightPanelCell.width = detailsWidth();
+            rightPanelCell.height = bodyHeight;
+            rightPanelCell.alignWidget();
         }
 
         @Override
         public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
-            drawerProgress = approach(drawerProgress, selectedModule == null ? 0 : 1, delta, 4.2);
+            drawerProgress = approach(drawerProgress, 1, delta, 4.2);
 
-            if (detailsCell != null && details != null) {
+            if (rightPanelCell != null && rightPanel != null) {
                 double targetX = detailsBaseX() + drawerOffset();
-                detailsCell.move(targetX - detailsCell.x, 0);
-                details.mouseMoved(mouseX, mouseY, mouseX, mouseY);
+                rightPanelCell.move(targetX - rightPanelCell.x, 0);
+                rightPanel.mouseMoved(mouseX, mouseY, mouseX, mouseY);
             }
 
             return super.render(renderer, mouseX, mouseY, delta);
@@ -651,29 +645,29 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         @Override
         protected void renderWidget(WWidget widget, GuiRenderer renderer, double mouseX, double mouseY, double delta) {
             if (widget == searchBar) {
-                drawRoundedRect(renderer, searchBarCell.x, searchBarCell.y, searchBarCell.width, searchBarCell.height,
-                    smallCornerRadius(), new SettingColor(18, 15, 24, glassAlpha(34)));
-                drawRoundedRect(renderer, searchBarCell.x, searchBarCell.y, searchBarCell.width, searchBarCell.height,
-                    smallCornerRadius(), new SettingColor(88, 69, 111, glassAlpha(14)));
+                drawRoundedRect(renderer, searchBar.x, searchBar.y, searchBar.width, searchBar.height,
+                    smallCornerRadius(), new SettingColor(18, 15, 24, glassAlpha(205)));
+                drawRoundedRect(renderer, searchBar.x, searchBar.y, searchBar.width, searchBar.height,
+                    smallCornerRadius(), new SettingColor(88, 69, 111, glassAlpha(95)));
                 super.renderWidget(widget, renderer, mouseX, mouseY, delta);
                 return;
             }
 
-            if (widget == details) {
+            if (widget == rightPanel) {
                 if (drawerProgress <= 0.001) return;
 
                 double eased = drawerEase();
-                double panelX = details.x;
+                double panelX = rightPanel.x;
                 double panelY = bodyTop();
                 double panelWidth = detailsWidth();
                 double panelHeight = bodyHeight();
 
                 drawRoundedRect(renderer, panelX, panelY, panelWidth, panelHeight, panelCornerRadius(),
-                    new SettingColor(88, 68, 112, glassAlpha((int) (26 * eased))));
+                    new SettingColor(88, 68, 112, glassAlpha((int) (205 * eased))));
                 drawRoundedRect(renderer, panelX + theme.scale(1), panelY + theme.scale(1),
                     panelWidth - theme.scale(2), panelHeight - theme.scale(2),
                     Math.max(0, panelCornerRadius() - theme.scale(1)),
-                    new SettingColor(13, 11, 19, glassAlpha((int) (30 * eased))));
+                    new SettingColor(13, 11, 19, glassAlpha((int) (225 * eased))));
 
                 super.renderWidget(widget, renderer, mouseX, mouseY, delta);
                 return;
@@ -685,8 +679,8 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         @Override
         protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
             Color outer = new SettingColor(8, 7, 12, 0);
-            Color panel = new SettingColor(13, 11, 19, glassAlpha(30));
-            Color border = new SettingColor(84, 66, 108, glassAlpha(23));
+            Color panel = new SettingColor(13, 11, 19, glassAlpha(225));
+            Color border = new SettingColor(84, 66, 108, glassAlpha(185));
             double pad = layoutPad();
             double bodyY = bodyTop();
             double bodyHeight = bodyHeight();
@@ -701,10 +695,10 @@ public class CatppuccinModernModulesScreen extends TabScreen {
                 Math.max(0, panelCornerRadius() - theme.scale(1)), panel);
 
             renderer.quad(pad + sidebarWidth(), bodyY + theme.scale(12), theme.scale(1),
-                bodyHeight - theme.scale(24), new SettingColor(76, 62, 97, glassAlpha(18)));
+                bodyHeight - theme.scale(24), new SettingColor(76, 62, 97, glassAlpha(135)));
             renderer.quad(centerX + theme.scale(12), bodyY + theme.scale(10),
                 centerWidth() - theme.scale(24), theme.scale(2), new SettingColor(
-                    accentColor().r, accentColor().g, accentColor().b, glassAlpha(78)));
+                    accentColor().r, accentColor().g, accentColor().b, glassAlpha(190)));
         }
 
         private double layoutPad() {
@@ -716,7 +710,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         }
 
         private double bodyTop() {
-            return layoutPad() + theme.scale(40) + layoutGap();
+            return layoutPad();
         }
 
         private double bodyHeight() {
@@ -748,10 +742,6 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
         private double drawerOffset() {
             return (width - detailsBaseX()) * (1 - drawerEase());
-        }
-
-        private void restartDrawerAnimation() {
-            drawerProgress = 0;
         }
 
         private class WCategoryButton extends WPressable {
@@ -787,31 +777,41 @@ public class CatppuccinModernModulesScreen extends TabScreen {
                 double hoverEase = easeOutQuart(hoverProgress);
                 double selectedEase = easeOutQuart(selectedProgress);
 
-                int backgroundAlpha = (int) (selectedEase * 78 + hoverEase * 22);
+                int backgroundAlpha = (int) (selectedEase * 155 + hoverEase * 70);
                 if (backgroundAlpha > 0) {
                     drawRoundedRect(renderer, x, y, width, height, smallCornerRadius(),
-                        new SettingColor(34, 28, 45, glassAlpha((int) (55 * selectedEase + 24 * hoverEase))));
+                        new SettingColor(34, 28, 45, glassAlpha((int) (165 * selectedEase + 90 * hoverEase))));
                 }
 
                 if (selectedEase > 0.01) {
                     renderer.quad(x + theme.scale(2), y + theme.scale(8), theme.scale(2),
                         height - theme.scale(16),
-                        new SettingColor(accentColor().r, accentColor().g, accentColor().b, glassAlpha((int) (92 * selectedEase))));
+                        new SettingColor(accentColor().r, accentColor().g, accentColor().b, glassAlpha((int) (205 * selectedEase))));
                 }
+
+                String categoryLabel = category == favoritesCategory ? "Favorites" : category.name;
+                renderer.text(fitText(categoryLabel, width - theme.scale(52)), x + theme.scale(12),
+                    y + theme.scale(12), selectedEase > 0.2 ? accentColor() : theme.textColor(), false);
 
                 ItemStack icon = categoryIcon(category);
                 if (icon != null && !icon.isEmpty()) {
-                    renderer.post(() -> renderer.item(icon, (int) (x + theme.scale(9)), (int) (y + theme.scale(5)), 1.5f, false));
+                    renderer.post(() -> renderer.item(icon,
+                        (int) (x + width - theme.scale(29)), (int) (y + theme.scale(5)), 1.5f, false));
                 }
-
-                renderer.text(category == favoritesCategory ? "Favorites" : category.name, x + theme.scale(38), y + theme.scale(12),
-                    selectedEase > 0.2 ? accentColor() : theme.textColor(), false);
             }
         }
 
         private ItemStack categoryIcon(Category category) {
             if (category == null) return ItemStack.EMPTY;
-            return category == favoritesCategory ? new ItemStack(Items.NETHER_STAR) : category.icon.get();
+            if (category == favoritesCategory) return new ItemStack(Items.NETHER_STAR);
+
+            return switch (category.name) {
+                case "Combat" -> new ItemStack(Items.DIAMOND_SWORD);
+                case "Player" -> new ItemStack(Items.PLAYER_HEAD);
+                case "Render" -> new ItemStack(Items.ENDER_EYE);
+                case "Misc" -> new ItemStack(Items.SHULKER_BOX);
+                default -> category.icon.get();
+            };
         }
 
         private class WModuleCard extends WContainer {
@@ -867,7 +867,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
                 if (selectionEase > 0.01) {
                     Color accent = accentColor();
                     SettingColor outline = new SettingColor(accent.r, accent.g, accent.b,
-                        glassAlpha((int) (96 * selectionEase)));
+                        glassAlpha((int) (190 * selectionEase)));
                     double line = theme.scale(1.4);
                     double radius = smallCornerRadius();
                     double markerWidth = theme.scale(3) * selectionEase;
@@ -917,18 +917,18 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             @Override
             protected void onRender(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
                 hoverProgress = approach(hoverProgress, mouseOver ? 1 : 0, delta, 4.8);
-                int backgroundAlpha = glassAlpha((int) (38 * easeOutQuart(hoverProgress)));
+                int backgroundAlpha = glassAlpha((int) (125 * easeOutQuart(hoverProgress)));
                 if (backgroundAlpha > 0) {
                     drawRoundedRect(renderer, x, y, width, height, smallCornerRadius(),
                         new SettingColor(36, 29, 47, backgroundAlpha));
                 }
 
+                renderer.text(label, x + theme.scale(12), y + theme.scale(12), theme.textColor(), false);
+
                 if (icon != null && !icon.isEmpty()) {
-                    renderer.post(() -> renderer.item(icon, (int) (x + theme.scale(9)),
+                    renderer.post(() -> renderer.item(icon, (int) (x + width - theme.scale(29)),
                         (int) (y + theme.scale(5)), 1.5f, false));
                 }
-
-                renderer.text(label, x + theme.scale(38), y + theme.scale(12), theme.textColor(), false);
             }
         }
 
