@@ -31,6 +31,7 @@ import meteordevelopment.meteorclient.gui.widgets.pressable.WFavorite;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WPressable;
 import me.pindour.catppuccin.gui.themes.catppuccin.CatppuccinGuiTheme;
 import me.pindour.catppuccin.gui.themes.catppuccin.icons.CatppuccinBuiltinIcons;
+import me.pindour.catppuccin.gui.themes.catppuccin.widgets.WCatppuccinTopBar;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.config.Config;
@@ -70,6 +71,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
     public CatppuccinModernModulesScreen(GuiTheme theme) {
         super(theme, Tabs.get().getFirst());
         this.catppuccinTheme = (CatppuccinGuiTheme) theme;
+        WCatppuccinTopBar.hideForNextScreen();
     }
 
     @Override
@@ -256,7 +258,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             searchBar.clear();
 
             search = theme.textBox("", "Search modules, settings or aliases...");
-            search.minWidth = theme.scale(220);
+            search.minWidth = 220;
             search.action = this::rebuildModules;
             searchTextBox = search;
             searchBar.add(search).expandX().padHorizontal(12);
@@ -319,7 +321,6 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             } catch (ClassNotFoundException ignored) {
                 // Older Meteor versions do not provide the path-manager tab.
             }
-        }
         }
 
         private void buildCenter() {

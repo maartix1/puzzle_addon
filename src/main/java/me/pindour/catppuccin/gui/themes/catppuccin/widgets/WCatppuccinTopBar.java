@@ -21,16 +21,21 @@ import static org.lwjgl.sdl.SDLMouse.SDL_WarpMouseInWindow;
  * to preserve tab indicator cool transition animations.
  */
 public class WCatppuccinTopBar extends WTopBar implements CatppuccinWidget {
+    private static boolean hideNextInit;
     private boolean invalid = true;
     private WTabView tabView;
 
     private TabBridge tabBridge;
     private Tab pendingTab;
 
+    public static void hideForNextScreen() {
+        hideNextInit = true;
+    }
+
     @Override
     public void init() {
-        if (mc.gui.screen() != null && mc.gui.screen().getClass().getName().equals(
-                "me.pindour.catppuccin.gui.screens.CatppuccinModernModulesScreen")) {
+        if (hideNextInit) {
+            hideNextInit = false;
             clear();
             tabView = null;
             tabBridge = null;
@@ -71,7 +76,13 @@ public class WCatppuccinTopBar extends WTopBar implements CatppuccinWidget {
     }
 
     public void onTabScreenOpen(Tab tab) {
-        invalid = tabView == null || !tabView.isTabActive(tabBridge.catppuccinTab(tab));
+        if (tabView == null || tabBridge == null) {
+            invalid = true;
+            pendingTab = tab;
+            return;
+        }
+
+        invalid = !tabView.isTabActive(tabBridge.catppuccinTab(tab));
         pendingTab = tab;
     }
 
