@@ -29,6 +29,16 @@ public class WCatppuccinTopBar extends WTopBar implements CatppuccinWidget {
 
     @Override
     public void init() {
+        if (mc.gui.screen() != null && mc.gui.screen().getClass().getName().equals(
+                "me.pindour.catppuccin.gui.screens.CatppuccinModernModulesScreen")) {
+            clear();
+            tabView = null;
+            tabBridge = null;
+            pendingTab = null;
+            invalid = true;
+            return;
+        }
+
         if (invalid) {
             tabBridge = new TabBridge(
                     Tabs.get(),

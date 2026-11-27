@@ -9,6 +9,7 @@ package me.pindour.catppuccin.gui.screens;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
+import meteordevelopment.meteorclient.gui.renderer.packer.GuiTexture;
 import meteordevelopment.meteorclient.gui.tabs.Tab;
 import meteordevelopment.meteorclient.gui.tabs.TabScreen;
 import meteordevelopment.meteorclient.gui.tabs.Tabs;
@@ -29,6 +30,7 @@ import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WFavorite;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WPressable;
 import me.pindour.catppuccin.gui.themes.catppuccin.CatppuccinGuiTheme;
+import me.pindour.catppuccin.gui.themes.catppuccin.icons.CatppuccinBuiltinIcons;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.config.Config;
@@ -254,7 +256,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             searchBar.clear();
 
             search = theme.textBox("", "Search modules, settings or aliases...");
-            search.minWidth = 220;
+            search.minWidth = theme.scale(220);
             search.action = this::rebuildModules;
             searchTextBox = search;
             searchBar.add(search).expandX().padHorizontal(12);
@@ -284,22 +286,40 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             sidebar.add(theme.horizontalSeparator("NAVIGATION")).expandX();
 
             Tab configTab = Tabs.get(ConfigTab.class);
-            if (configTab != null) sidebar.add(new WTabButton("Config", configTab, new ItemStack(Items.REDSTONE))).expandX();
+            if (configTab != null) sidebar.add(new WTabButton("Config", configTab, CatppuccinBuiltinIcons.SETTING.texture())).expandX();
 
             Tab guiTab = Tabs.get(GuiTab.class);
-            if (guiTab != null) sidebar.add(new WTabButton("GUI", guiTab, new ItemStack(Items.COMPARATOR))).expandX();
+            if (guiTab != null) sidebar.add(new WTabButton("GUI", guiTab, CatppuccinBuiltinIcons.BRUSH.texture())).expandX();
 
             Tab hudTab = Tabs.get(HudTab.class);
-            if (hudTab != null) sidebar.add(new WTabButton("HUD", hudTab, new ItemStack(Items.ITEM_FRAME))).expandX();
+            if (hudTab != null) sidebar.add(new WTabButton("HUD", hudTab, CatppuccinBuiltinIcons.GRID.texture())).expandX();
 
             Tab friendsTab = Tabs.get(FriendsTab.class);
-            if (friendsTab != null) sidebar.add(new WTabButton("Friends", friendsTab, new ItemStack(Items.PLAYER_HEAD))).expandX();
+            if (friendsTab != null) sidebar.add(new WTabButton("Friends", friendsTab, CatppuccinBuiltinIcons.PEOPLE.texture())).expandX();
 
             Tab macrosTab = Tabs.get(MacrosTab.class);
-            if (macrosTab != null) sidebar.add(new WTabButton("Macros", macrosTab, new ItemStack(Items.REPEATER))).expandX();
+            if (macrosTab != null) sidebar.add(new WTabButton("Macros", macrosTab, CatppuccinBuiltinIcons.MOUSE.texture())).expandX();
 
             Tab profilesTab = Tabs.get(ProfilesTab.class);
-            if (profilesTab != null) sidebar.add(new WTabButton("Profiles", profilesTab, new ItemStack(Items.BOOK))).expandX();
+            if (profilesTab != null) sidebar.add(new WTabButton("Profiles", profilesTab, CatppuccinBuiltinIcons.PERSON.texture())).expandX();
+
+            addPathManagerTab();
+        }
+
+        private void addPathManagerTab() {
+            try {
+                Class<? extends Tab> pathManagerClass = Class
+                    .forName("meteordevelopment.meteorclient.gui.tabs.builtin.PathManagerTab")
+                    .asSubclass(Tab.class);
+                Tab pathManagerTab = Tabs.get(pathManagerClass);
+                if (pathManagerTab != null) {
+                    sidebar.add(new WTabButton(pathManagerTab.name, pathManagerTab,
+                        CatppuccinBuiltinIcons.MOVEMENT.texture())).expandX();
+                }
+            } catch (ClassNotFoundException ignored) {
+                // Older Meteor versions do not provide the path-manager tab.
+            }
+        }
         }
 
         private void buildCenter() {
@@ -636,9 +656,9 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             centerCell.height = bodyHeight;
             centerCell.alignWidget();
 
-            searchBarCell.x = pad;
+            searchBarCell.width = Math.min(theme.scale(520), width - pad * 2);
+            searchBarCell.x = (width - searchBarCell.width) / 2;
             searchBarCell.y = pad;
-            searchBarCell.width = width - pad * 2;
             searchBarCell.height = theme.scale(40);
             searchBarCell.alignWidget();
 
@@ -919,10 +939,10 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         private class WTabButton extends WPressable {
             private final String label;
             private final Tab tab;
-            private final ItemStack icon;
+            private final GuiTexture icon;
             private double hoverProgress;
 
-            WTabButton(String label, Tab tab, ItemStack icon) {
+            WTabButton(String label, Tab tab, GuiTexture icon) {
                 this.label = label;
                 this.tab = tab;
                 this.icon = icon;
@@ -950,9 +970,9 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
                 renderer.text(label, x + theme.scale(12), y + theme.scale(12), theme.textColor(), false);
 
-                if (icon != null && !icon.isEmpty()) {
-                    renderer.post(() -> renderer.item(icon, (int) (x + width - theme.scale(29)),
-                        (int) (y + theme.scale(5)), 1.5f, false));
+                if (icon != null) {
+                    renderer.quad(x + width - theme.scale(29), y + theme.scale(7),
+                        theme.scale(22), theme.scale(22), icon, theme.textColor());
                 }
             }
         }

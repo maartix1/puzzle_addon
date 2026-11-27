@@ -13,7 +13,10 @@ public enum CatppuccinFlavors {
     Latte(Latte.class),
     Frappe(Frappe.class),
     Macchiato(Macchiato.class),
-    Mocha(Mocha.class);
+    Mocha(Mocha.class),
+    Nord(Nord.class),
+    Dracula(Dracula.class),
+    Gruvbox(Gruvbox.class);
 
 
     private final Class<? extends FlavorColorProvider> colorProviderClass;
