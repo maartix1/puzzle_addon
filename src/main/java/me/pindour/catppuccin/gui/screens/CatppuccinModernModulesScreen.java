@@ -1,7 +1,7 @@
 //? if >=26.3 {
 /*
- * This file is part of the Meteor Client distribution (https://github.com/MeteorDevelopment/meteor-client).
- * Copyright (c) Meteor Development.
+ * Adapted for the Catppuccin Addon from Meteor Client PR #6827.
+ * Original implementation copyright (c) Meteor Development.
  */
 
 package me.pindour.catppuccin.gui.screens;
