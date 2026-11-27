@@ -7,8 +7,6 @@ import me.pindour.catppuccin.api.text.RichText;
 import me.pindour.catppuccin.api.text.RichTextSegment;
 import me.pindour.catppuccin.gui.screens.CatppuccinModuleScreen;
 import me.pindour.catppuccin.gui.screens.CatppuccinModulesScreen;
-//? if >=26.3
-import me.pindour.catppuccin.gui.screens.CatppuccinModernModulesScreen;
 import me.pindour.catppuccin.gui.themes.catppuccin.colors.CatppuccinAccentColor;
 import me.pindour.catppuccin.gui.themes.catppuccin.colors.CatppuccinColor;
 import me.pindour.catppuccin.gui.themes.catppuccin.colors.ColorLinkRegistry;
@@ -148,15 +146,6 @@ public class CatppuccinGuiTheme extends GuiTheme {
             .defaultValue(true)
             .build()
     );
-
-    //? if >=26.3 {
-    public final Setting<Boolean> modernModulesScreen = sgScreens.add(new BoolSetting.Builder()
-            .name("modern-modules-screen")
-            .description("Use the modern searchable modules layout with a category sidebar and settings drawer.")
-            .defaultValue(true)
-            .build()
-    );
-    //?}
 
     public final Setting<Boolean> indentSettings = sgGeneral.add(new BoolSetting.Builder()
             .name("indent-settings")
@@ -353,7 +342,11 @@ public class CatppuccinGuiTheme extends GuiTheme {
     private final Setting<SettingColor> starscriptAccessedObjects = color(sgStarscript, "starscript-accessed-objects", "Color of accessed objects (before a dot) in Starscript code.", new SettingColor(152, 118, 170));
 
     public CatppuccinGuiTheme() {
-        super("Catppuccin");
+        this("Catppuccin");
+    }
+
+    protected CatppuccinGuiTheme(String themeName) {
+        super(themeName);
 
         settingsFactory = new CatppuccinSettingsWidgetFactory(this);
         colorCache = new EnumMap<>(CatppuccinColor.class);
@@ -806,17 +799,12 @@ public class CatppuccinGuiTheme extends GuiTheme {
 
     @Override
     public TabScreen modulesScreen() {
-        //? if >=26.3
-        if (modernModulesScreen.get()) return new CatppuccinModernModulesScreen(this);
         return new CatppuccinModulesScreen(this);
     }
 
     @Override
     public boolean isModulesScreen(Screen screen) {
-        return screen instanceof CatppuccinModulesScreen
-            //? if >=26.3
-            || screen instanceof CatppuccinModernModulesScreen
-            ;
+        return screen instanceof CatppuccinModulesScreen;
     }
 
     @Override
