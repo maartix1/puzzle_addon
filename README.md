@@ -89,6 +89,8 @@
 - 🔎 **Epic Search™**  
   *(Leveraging advanced query-parsing technology to help you find 'AutoCrystal' 0.4ms faster)*
 
+- 🧭 **Modern Modules Screen** *(Minecraft 26.3+; category sidebar, module/settings search, module cards and an animated settings drawer. Toggle it in the Catppuccin theme settings.)*
+
 ## 🛠️ For Developers
 
 Want to add support for the Catppuccin Theme in your addon?
