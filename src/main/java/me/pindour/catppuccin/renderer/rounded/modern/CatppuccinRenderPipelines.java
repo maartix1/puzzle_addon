@@ -22,7 +22,7 @@ import java.util.Optional;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import com.mojang.renderpearl.api.pipeline.BindGroupLayout;
 //? } else {
-/*import com.mojang.renderpearl.api.vertex.VertexFormat;
+/*import com.mojang.blaze3d.vertex.VertexFormat;
 *///?}
 
 public class CatppuccinRenderPipelines {
