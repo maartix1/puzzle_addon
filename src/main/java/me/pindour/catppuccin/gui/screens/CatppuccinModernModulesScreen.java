@@ -12,6 +12,8 @@ import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.tabs.Tab;
 import meteordevelopment.meteorclient.gui.tabs.TabScreen;
 import meteordevelopment.meteorclient.gui.tabs.Tabs;
+import meteordevelopment.meteorclient.gui.tabs.builtin.FriendsTab;
+import meteordevelopment.meteorclient.gui.tabs.builtin.GuiTab;
 import meteordevelopment.meteorclient.gui.tabs.builtin.HudTab;
 import meteordevelopment.meteorclient.gui.tabs.builtin.ProfilesTab;
 import meteordevelopment.meteorclient.gui.utils.Cell;
@@ -198,7 +200,6 @@ public class CatppuccinModernModulesScreen extends TabScreen {
     private class WModernLayout extends WContainer {
         private final List<Category> categories = new ArrayList<>();
 
-        private WVerticalList rightPanel;
         private WHorizontalList searchBar;
         private WVerticalList sidebar;
         private WVerticalList center;
@@ -208,9 +209,10 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         private WVerticalList detailsContent;
         private WTextBox search;
 
-        private Cell<?> rightPanelCell;
+        private Cell<?> searchBarCell;
         private Cell<?> sidebarCell;
         private Cell<?> centerCell;
+        private Cell<?> detailsCell;
         private double drawerProgress;
 
         @Override
@@ -222,9 +224,9 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             selectedCategory = categories.isEmpty() ? favoritesCategory : categories.getFirst();
             selectedModule = getCategoryModules(selectedCategory).stream().findFirst().orElse(null);
 
-            rightPanel = theme.verticalList();
-            rightPanel.spacing = 8;
-            rightPanelCell = add(rightPanel).expandX().expandWidgetY();
+            searchBar = theme.horizontalList();
+            searchBar.spacing = 10;
+            searchBarCell = add(searchBar).expandX().expandWidgetY();
 
             sidebar = theme.verticalList();
             sidebar.spacing = 5;
@@ -236,10 +238,9 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
             buildSearchBar();
 
-            rightPanel.add(theme.horizontalSeparator("MODULE SETTINGS")).expandX();
             details = theme.verticalList();
             details.spacing = 6;
-            rightPanel.add(details).expandX().expandWidgetY();
+            detailsCell = add(details).expandX().expandWidgetY();
 
             buildSidebar();
             buildCenter();
@@ -248,24 +249,23 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         }
 
         private void buildSearchBar() {
-            searchBar = theme.horizontalList();
-            searchBar.spacing = 6;
+            searchBar.clear();
+            searchBar.add(theme.label("PUZZLE THEME", true)).centerY().padLeft(12);
 
             search = theme.textBox("", "Search modules, settings or aliases...");
-            search.minWidth = 125;
+            search.minWidth = 220;
             search.action = this::rebuildModules;
             searchTextBox = search;
-            searchBar.add(search).expandX();
+            searchBar.add(search).expandX().padHorizontal(8);
+
+            searchBar.add(theme.label("CTRL + F")).centerY();
 
             WPressable clearSearch = theme.button("×");
             clearSearch.action = () -> {
                 search.set("");
                 search.setFocused(true);
             };
-            searchBar.add(clearSearch);
-
-            rightPanel.add(theme.horizontalSeparator("SEARCH")).expandX();
-            rightPanel.add(searchBar).expandX().padHorizontal(10);
+            searchBar.add(clearSearch).padRight(10);
         }
 
         private void buildSidebar() {
@@ -279,10 +279,16 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
             sidebar.add(new WCategoryButton(favoritesCategory)).expandX();
 
-            sidebar.add(theme.horizontalSeparator("OTHER")).expandX();
+            sidebar.add(theme.horizontalSeparator("NAVIGATION")).expandX();
+
+            Tab guiTab = Tabs.get(GuiTab.class);
+            if (guiTab != null) sidebar.add(new WTabButton("GUI", guiTab, new ItemStack(Items.COMPARATOR))).expandX();
 
             Tab profilesTab = Tabs.get(ProfilesTab.class);
             if (profilesTab != null) sidebar.add(new WTabButton("Profiles", profilesTab, new ItemStack(Items.BOOK))).expandX();
+
+            Tab friendsTab = Tabs.get(FriendsTab.class);
+            if (friendsTab != null) sidebar.add(new WTabButton("Friends", friendsTab, new ItemStack(Items.PLAYER_HEAD))).expandX();
 
             Tab hudTab = Tabs.get(HudTab.class);
             if (hudTab != null) sidebar.add(new WTabButton("HUD", hudTab, new ItemStack(Items.ITEM_FRAME))).expandX();
@@ -622,21 +628,27 @@ public class CatppuccinModernModulesScreen extends TabScreen {
             centerCell.height = bodyHeight;
             centerCell.alignWidget();
 
-            rightPanelCell.x = detailsBaseX() + drawerOffset();
-            rightPanelCell.y = bodyY;
-            rightPanelCell.width = detailsWidth();
-            rightPanelCell.height = bodyHeight;
-            rightPanelCell.alignWidget();
+            searchBarCell.x = pad;
+            searchBarCell.y = pad;
+            searchBarCell.width = width - pad * 2;
+            searchBarCell.height = theme.scale(40);
+            searchBarCell.alignWidget();
+
+            detailsCell.x = detailsBaseX() + drawerOffset();
+            detailsCell.y = bodyY;
+            detailsCell.width = detailsWidth();
+            detailsCell.height = bodyHeight;
+            detailsCell.alignWidget();
         }
 
         @Override
         public boolean render(GuiRenderer renderer, double mouseX, double mouseY, double delta) {
             drawerProgress = approach(drawerProgress, 1, delta, 4.2);
 
-            if (rightPanelCell != null && rightPanel != null) {
+            if (detailsCell != null && details != null) {
                 double targetX = detailsBaseX() + drawerOffset();
-                rightPanelCell.move(targetX - rightPanelCell.x, 0);
-                rightPanel.mouseMoved(mouseX, mouseY, mouseX, mouseY);
+                detailsCell.move(targetX - detailsCell.x, 0);
+                details.mouseMoved(mouseX, mouseY, mouseX, mouseY);
             }
 
             return super.render(renderer, mouseX, mouseY, delta);
@@ -645,19 +657,19 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         @Override
         protected void renderWidget(WWidget widget, GuiRenderer renderer, double mouseX, double mouseY, double delta) {
             if (widget == searchBar) {
-                drawRoundedRect(renderer, searchBar.x, searchBar.y, searchBar.width, searchBar.height,
+                drawRoundedRect(renderer, searchBarCell.x, searchBarCell.y, searchBarCell.width, searchBarCell.height,
                     smallCornerRadius(), new SettingColor(18, 15, 24, glassAlpha(205)));
-                drawRoundedRect(renderer, searchBar.x, searchBar.y, searchBar.width, searchBar.height,
+                drawRoundedRect(renderer, searchBarCell.x, searchBarCell.y, searchBarCell.width, searchBarCell.height,
                     smallCornerRadius(), new SettingColor(88, 69, 111, glassAlpha(95)));
                 super.renderWidget(widget, renderer, mouseX, mouseY, delta);
                 return;
             }
 
-            if (widget == rightPanel) {
+            if (widget == details) {
                 if (drawerProgress <= 0.001) return;
 
                 double eased = drawerEase();
-                double panelX = rightPanel.x;
+                double panelX = details.x;
                 double panelY = bodyTop();
                 double panelWidth = detailsWidth();
                 double panelHeight = bodyHeight();
@@ -710,7 +722,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         }
 
         private double bodyTop() {
-            return layoutPad();
+            return layoutPad() + theme.scale(40) + layoutGap();
         }
 
         private double bodyHeight() {
