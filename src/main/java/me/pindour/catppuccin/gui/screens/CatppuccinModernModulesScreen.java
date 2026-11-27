@@ -12,9 +12,11 @@ import meteordevelopment.meteorclient.gui.renderer.GuiRenderer;
 import meteordevelopment.meteorclient.gui.tabs.Tab;
 import meteordevelopment.meteorclient.gui.tabs.TabScreen;
 import meteordevelopment.meteorclient.gui.tabs.Tabs;
+import meteordevelopment.meteorclient.gui.tabs.builtin.ConfigTab;
 import meteordevelopment.meteorclient.gui.tabs.builtin.FriendsTab;
 import meteordevelopment.meteorclient.gui.tabs.builtin.GuiTab;
 import meteordevelopment.meteorclient.gui.tabs.builtin.HudTab;
+import meteordevelopment.meteorclient.gui.tabs.builtin.MacrosTab;
 import meteordevelopment.meteorclient.gui.tabs.builtin.ProfilesTab;
 import meteordevelopment.meteorclient.gui.utils.Cell;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
@@ -146,7 +148,7 @@ public class CatppuccinModernModulesScreen extends TabScreen {
     }
 
     private double glassOpacity() {
-        return Math.max(0.9, catppuccinTheme.backgroundOpacity());
+        return 0.28 * catppuccinTheme.backgroundOpacity();
     }
 
     private int glassAlpha(int alpha) {
@@ -250,15 +252,12 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
         private void buildSearchBar() {
             searchBar.clear();
-            searchBar.add(theme.label("PUZZLE THEME", true)).centerY().padLeft(12);
 
             search = theme.textBox("", "Search modules, settings or aliases...");
             search.minWidth = 220;
             search.action = this::rebuildModules;
             searchTextBox = search;
-            searchBar.add(search).expandX().padHorizontal(8);
-
-            searchBar.add(theme.label("CTRL + F")).centerY();
+            searchBar.add(search).expandX().padHorizontal(12);
 
             WPressable clearSearch = theme.button("×");
             clearSearch.action = () -> {
@@ -271,6 +270,9 @@ public class CatppuccinModernModulesScreen extends TabScreen {
         private void buildSidebar() {
             sidebar.clear();
 
+            sidebar.add(theme.horizontalSeparator("PUZZLE THEME")).expandX();
+            sidebar.add(theme.label("CTRL + F")).padHorizontal(10);
+
             sidebar.add(theme.horizontalSeparator("FEATURES")).expandX();
 
             for (Category category : categories) {
@@ -281,17 +283,23 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
             sidebar.add(theme.horizontalSeparator("NAVIGATION")).expandX();
 
+            Tab configTab = Tabs.get(ConfigTab.class);
+            if (configTab != null) sidebar.add(new WTabButton("Config", configTab, new ItemStack(Items.REDSTONE))).expandX();
+
             Tab guiTab = Tabs.get(GuiTab.class);
             if (guiTab != null) sidebar.add(new WTabButton("GUI", guiTab, new ItemStack(Items.COMPARATOR))).expandX();
 
-            Tab profilesTab = Tabs.get(ProfilesTab.class);
-            if (profilesTab != null) sidebar.add(new WTabButton("Profiles", profilesTab, new ItemStack(Items.BOOK))).expandX();
+            Tab hudTab = Tabs.get(HudTab.class);
+            if (hudTab != null) sidebar.add(new WTabButton("HUD", hudTab, new ItemStack(Items.ITEM_FRAME))).expandX();
 
             Tab friendsTab = Tabs.get(FriendsTab.class);
             if (friendsTab != null) sidebar.add(new WTabButton("Friends", friendsTab, new ItemStack(Items.PLAYER_HEAD))).expandX();
 
-            Tab hudTab = Tabs.get(HudTab.class);
-            if (hudTab != null) sidebar.add(new WTabButton("HUD", hudTab, new ItemStack(Items.ITEM_FRAME))).expandX();
+            Tab macrosTab = Tabs.get(MacrosTab.class);
+            if (macrosTab != null) sidebar.add(new WTabButton("Macros", macrosTab, new ItemStack(Items.REPEATER))).expandX();
+
+            Tab profilesTab = Tabs.get(ProfilesTab.class);
+            if (profilesTab != null) sidebar.add(new WTabButton("Profiles", profilesTab, new ItemStack(Items.BOOK))).expandX();
         }
 
         private void buildCenter() {
@@ -876,19 +884,24 @@ public class CatppuccinModernModulesScreen extends TabScreen {
 
                 selectionProgress = approach(selectionProgress, module == selectedModule ? 1 : 0, delta, 4.0);
                 double selectionEase = easeOutQuart(selectionProgress);
-                if (selectionEase > 0.01) {
-                    Color accent = accentColor();
-                    SettingColor outline = new SettingColor(accent.r, accent.g, accent.b,
-                        glassAlpha((int) (190 * selectionEase)));
-                    double line = theme.scale(1.4);
-                    double radius = smallCornerRadius();
-                    double markerWidth = theme.scale(3) * selectionEase;
+                boolean selected = module == selectedModule;
 
-                    renderer.quad(x + radius, y, width - radius * 2, line, outline);
-                    renderer.quad(x + radius, y + height - line, width - radius * 2, line, outline);
-                    renderer.quad(x, y + radius, line, height - radius * 2, outline);
-                    renderer.quad(x + width - line, y + radius, line, height - radius * 2, outline);
-                    renderer.quad(x + theme.scale(1), y + radius, markerWidth, height - radius * 2, outline);
+                double line = theme.scale(1.3);
+                double radius = smallCornerRadius();
+                SettingColor frame = selected
+                    ? new SettingColor(accentColor().r, accentColor().g, accentColor().b,
+                        glassAlpha((int) (220 * selectionEase)))
+                    : new SettingColor(105, 88, 125, glassAlpha(150));
+
+                // Keep a subtle frame around every module card, like the PR layout.
+                renderer.quad(x + radius, y, width - radius * 2, line, frame);
+                renderer.quad(x + radius, y + height - line, width - radius * 2, line, frame);
+                renderer.quad(x, y + radius, line, height - radius * 2, frame);
+                renderer.quad(x + width - line, y + radius, line, height - radius * 2, frame);
+
+                if (selected && selectionEase > 0.01) {
+                    double markerWidth = theme.scale(3) * selectionEase;
+                    renderer.quad(x + theme.scale(1), y + radius, markerWidth, height - radius * 2, frame);
                 }
 
                 return false;
